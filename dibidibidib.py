@@ -1,6 +1,5 @@
 import pymysql
 import sys
-import csv
 from PyQt5.QtWidgets import QTableWidgetItem, QAbstractItemView
 from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets
@@ -8,6 +7,11 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from datetime import datetime
 import time
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import numpy as np
+
 
 form_class= uic.loadUiType("covid.ui")[0]
 class Covid_project(QWidget,form_class):
@@ -31,7 +35,7 @@ class Covid_project(QWidget,form_class):
         self.line_serach.returnPressed.connect(self.search)
         self.btn_search.clicked.connect(self.search)
         # self.covid_table.cellClicked.connect(self.btn_graph_able)
-        # self.btn_graph.clicked.connect(self.draw_graph)
+        self.btn_graph.clicked.connect(self.draw_graph)
         # self.btn_del.clicked.connect(self.delete_data)
         #-------------------------------------------------------------------
 
@@ -69,18 +73,50 @@ class Covid_project(QWidget,form_class):
     def draw_graph(self):
         row= self.covid_table.currentRow()
         print("선택된 열의 인덱스",row)
+        print(row)
+        select_country=self.result[row][2]
+        select_date=self.result[row][0].split('-')
+        year_month=select_date[0]+'-'+select_date[1]
+        print(year_month)
+        print(type(year_month))
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
-        self.cursor.execute('SELECT * FROM covid_012')
+        self.cursor.execute(f"SELECT * FROM covid_012 where 날짜 like '%{year_month}%'"
+                            f"and 국가 = '{select_country}';")
         self.a = self.cursor.fetchall()
-        when = self.result[row][0]
-        print(when)
-        when_format= '%y-%m-%d'
-        graph_month= datetime.strptime(when, when_format)
-        print(graph_month)
-        print(when)
+        for i in range(len(self.a)):
+            print(self.a[i])
         self.conn.close()
+        self.fig = plt.Figure()
+        self.canvas = FigureCanvas(self.fig)
+        self.graph_verticalLayout.addWidget(self.canvas)
+        date_list= list()
+        cumulative= list()
+
+        for i in self.a:
+            date_list.append(i[0])
+            cumulative.append(int(i[5]))
+        datetime_format = '%y-%m-%d'
+        for i in date_list:
+            datetime_result = datetime.strptime(i, datetime_format)
+            print(type(i))
+
+
+        x = np.linspace(date_list[0],date_list[len(date_list)],len(date_list)//10)
+        y = np.linspace(min(cumulative),max(cumulative),max(cumulative)//10)
+
+
+        ax = self.fig.add_subplot(111)
+        ax.plot(x, y, label="Cumulative_cases")
+        ax.set_xlabel("x")
+        ax.set_xlabel("y")
+
+        ax.set_title("my sin graph")
+        ax.legend()
+        self.canvas.draw()
+
+
 
         # self.cursor.execute(f'select * from covid_012 where 국가 = '{self.result[row][2]}'')
 
