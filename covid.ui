@@ -45,6 +45,9 @@
        <height>291</height>
       </rect>
      </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <column>
       <property name="text">
        <string>날짜</string>
@@ -126,20 +129,17 @@
      </property>
      <layout class="QVBoxLayout" name="graph_verticalLayout"/>
     </widget>
-    <widget class="QPushButton" name="btn_graph">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
+    <widget class="QPushButton" name="btn_change">
      <property name="geometry">
       <rect>
-       <x>790</x>
+       <x>780</x>
        <y>410</y>
        <width>75</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>그래프</string>
+      <string>수정</string>
      </property>
     </widget>
    </widget>

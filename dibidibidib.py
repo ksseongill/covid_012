@@ -1,7 +1,7 @@
 import pymysql
 import sys
 import csv
-from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidgetItem, QAbstractItemView
 from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets
 from PyQt5 import uic
@@ -26,17 +26,19 @@ class Covid_project(QWidget,form_class):
         self.btn_complete.clicked.connect(self.add_data_complete)
         self.cumulative_deaths.returnPressed.connect(self.add_data_complete)
         self.btn_add_cancle.clicked.connect(self.move_main)
+        self.btn_change.clicked.connect(self.change_data)
         #-------------------------------------------------------------------
         self.line_serach.returnPressed.connect(self.search)
         self.btn_search.clicked.connect(self.search)
-        self.covid_table.cellClicked.connect(self.btn_graph_able)
-        self.btn_graph.clicked.connect(self.draw_graph)
+        # self.covid_table.cellClicked.connect(self.btn_graph_able)
+        # self.btn_graph.clicked.connect(self.draw_graph)
         # self.btn_del.clicked.connect(self.삭제클릭)
         #-------------------------------------------------------------------
 
 
     def add_data(self):     # 추가를 눌렀을 때 추가페이지로 이동
         self.stackedWidget.setCurrentIndex(1)
+
     def move_main(self):    # 취소를 눌렀을 때 메인페이지로 이동
         self.stackedWidget.setCurrentIndex(0)
 
@@ -84,7 +86,6 @@ class Covid_project(QWidget,form_class):
 
 
 
-
     def search(self):
         search_word = self.line_serach.text()
         print(search_word)
@@ -104,8 +105,8 @@ class Covid_project(QWidget,form_class):
         Row = 0
 
         for k in self.result:
-            self.covid_table.setItem(Row, 0, QTableWidgetItem(k[0]))    # 날짜
-            self.covid_table.setItem(Row, 1, QTableWidgetItem(k[2]))    # 국가
+            self.covid_table.setItem(Row, 0, QTableWidgetItem(k[0]))         # 날짜
+            self.covid_table.setItem(Row, 1, QTableWidgetItem(k[2]))         # 국가
             self.covid_table.setItem(Row, 2, QTableWidgetItem(str(k[4])))    # 신규 확진자
             self.covid_table.setItem(Row, 3, QTableWidgetItem(str(k[5])))    # 누적 확진자
             self.covid_table.setItem(Row, 4, QTableWidgetItem(str(k[6])))    # 신규 사망자
@@ -114,6 +115,20 @@ class Covid_project(QWidget,form_class):
             # self.YH_main.setItem(Row, 7, QTableWidgetItem('-'))
             Row += 1
         self.conn.close()
+
+    def change_data(self):
+        self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)
+        data = self.result[self.covid_table.currentRow()]
+        row = self.covid_table.selectedItems()
+        date = row[0].text()
+        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+                               charset='utf8')
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(f"UPDATE covid_012 SET 날짜='{date}' WHERE 날짜='{data[0]}'")
+        self.conn.commit()
+        self.conn.close()
+
+
 
 
 if __name__ == '__main__':
