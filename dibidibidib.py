@@ -6,7 +6,8 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
-
+from datetime import datetime
+import time
 
 form_class= uic.loadUiType("covid.ui")[0]
 class Covid_project(QWidget,form_class):
@@ -19,6 +20,7 @@ class Covid_project(QWidget,form_class):
         self.cursor = self.conn.cursor()
         self.cursor.execute('SELECT * FROM covid_012')
         self.a = self.cursor.fetchall()
+        self.conn.close()
         self.header='날짜,국가코드,국가,WHO지역,신규 확진자,신규 사망자,누적 사망자'
         self.btn_add.clicked.connect(self.add_data)
         self.btn_complete.clicked.connect(self.add_data_complete)
@@ -27,6 +29,8 @@ class Covid_project(QWidget,form_class):
         #-------------------------------------------------------------------
         self.line_serach.returnPressed.connect(self.search)
         self.btn_search.clicked.connect(self.search)
+        self.covid_table.cellClicked.connect(self.btn_graph_able)
+        self.btn_graph.clicked.connect(self.draw_graph)
         # self.btn_del.clicked.connect(self.삭제클릭)
         #-------------------------------------------------------------------
 
@@ -46,6 +50,9 @@ class Covid_project(QWidget,form_class):
         new_deaths = self.new_deaths.text()
         cumulative_deaths = self.cumulative_deaths.text()
         # DB 추가-------------------------------------------------------------------
+        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+                               charset='utf8')
+        self.cursor = self.conn.cursor()
         self.cursor.execute(
             f"INSERT INTO test_covid(날짜,국가,신규확진자,누적확진자,신규사망자,누적사망자) VALUES('{date}','{country}',{int(new_cases)},{int(cumulative_cases)},{int(new_deaths)},{int(cumulative_deaths)})")
         # DB 저장
@@ -54,6 +61,27 @@ class Covid_project(QWidget,form_class):
         self.conn.close()
         #메시지 박스 만들어야함--------------------------------------------------------
         print('추가되었습니다. 메시지박스')
+    def btn_graph_able(self):
+        self.btn_graph.setEnabled(True)
+
+    def draw_graph(self):
+        row= self.covid_table.currentRow()
+        print("선택된 열의 인덱스",row)
+        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+                               charset='utf8')
+        self.cursor = self.conn.cursor()
+        self.cursor.execute('SELECT * FROM covid_012')
+        self.a = self.cursor.fetchall()
+        when = self.result[row][0]
+        print(when)
+        when_format= '%y-%m-%d'
+        graph_month= datetime.strptime(when, when_format)
+        print(graph_month)
+        print(when)
+        self.conn.close()
+
+        # self.cursor.execute(f'select * from covid_012 where 국가 = '{self.result[row][2]}'')
+
 
 
 
@@ -65,12 +93,13 @@ class Covid_project(QWidget,form_class):
         # self.cursor.fetchall()
         # self.conn.close()
         # sql = f"SELECT * FROM `test_covid` where %{search_word}%;"
-        self.cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{search_word}%';")
+        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+                               charset='utf8')
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{search_word}%'")
         self.result = self.cursor.fetchall()
         for i in range(len(self.result)):
             print(self.result[i])
-            # print(i)
-            # print(result)
         self.covid_table.setRowCount(len(self.result))
         Row = 0
 
@@ -84,6 +113,7 @@ class Covid_project(QWidget,form_class):
             # self.covid_table.setItem(Row, 6, QTableWidgetItem(k[6]))
             # self.YH_main.setItem(Row, 7, QTableWidgetItem('-'))
             Row += 1
+        self.conn.close()
 
 
 if __name__ == '__main__':

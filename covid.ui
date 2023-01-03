@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="page">
     <widget class="QLineEdit" name="line_serach">
@@ -125,6 +125,22 @@
       </rect>
      </property>
      <layout class="QVBoxLayout" name="graph_verticalLayout"/>
+    </widget>
+    <widget class="QPushButton" name="btn_graph">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>790</x>
+       <y>410</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>그래프</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
