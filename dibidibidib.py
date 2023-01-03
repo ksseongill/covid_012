@@ -32,7 +32,7 @@ class Covid_project(QWidget,form_class):
         self.btn_search.clicked.connect(self.search)
         # self.covid_table.cellClicked.connect(self.btn_graph_able)
         # self.btn_graph.clicked.connect(self.draw_graph)
-        # self.btn_del.clicked.connect(self.삭제클릭)
+        # self.btn_del.clicked.connect(self.delete_data)
         #-------------------------------------------------------------------
 
 
@@ -45,7 +45,7 @@ class Covid_project(QWidget,form_class):
     def add_data_complete(self):    # 완료버튼 클릭시, 마지막 에디터에서 엔터를 쳤을 경우
         self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
         # 라인에디터 텍스트 받기-------------------------------------------------------
-        date= self.date.text()
+        date = self.date.text()
         country = self.country.text()
         new_cases = self.new_cases.text()
         cumulative_cases = self.cumulative_cases.text()
@@ -84,8 +84,6 @@ class Covid_project(QWidget,form_class):
 
         # self.cursor.execute(f'select * from covid_012 where 국가 = '{self.result[row][2]}'')
 
-
-
     def search(self):
         search_word = self.line_serach.text()
         print(search_word)
@@ -117,18 +115,32 @@ class Covid_project(QWidget,form_class):
         self.conn.close()
 
     def change_data(self):
-        self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        data = self.result[self.covid_table.currentRow()]
-        row = self.covid_table.selectedItems()
-        date = row[0].text()
+        self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
+        data = self.result[self.covid_table.currentRow()]       # 테이블 위젯의 result 값을 data에 저장
+        row = self.covid_table.selectedItems()     # 테이블 위젯의 항목 리스트 형식으로 반환된 값을 row에 저장
+        date = row[0].text()       # 날짜
+        country = row[1].text()    # 국가
+        new_cases = row[2].text()           # 신규확진자
+        cumulative_cases = row[3].text()    # 누적확진자
+        new_deaths = row[4].text()          # 신규사망자
+        cumulative_deaths = row[5].text()   # 누적사망자
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
         self.cursor.execute(f"UPDATE covid_012 SET 날짜='{date}' WHERE 날짜='{data[0]}'")
+        self.cursor.execute(f"UPDATE covid_012 SET 국가='{country}' WHERE 국가='{data[2]}'")
+        self.cursor.execute(f"UPDATE covid_012 SET 신규확진자='{new_cases}' WHERE 신규확진자='{str(data[4])}'"
+                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
+        self.cursor.execute(f"UPDATE covid_012 SET 누적확진자='{cumulative_cases}' WHERE 누적확진자='{str(data[5])}'"
+                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
+        self.cursor.execute(f"UPDATE covid_012 SET 신규사망자='{new_deaths}' WHERE 신규사망자='{str(data[6])}'"
+                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
+        self.cursor.execute(f"UPDATE covid_012 SET 누적사망자='{cumulative_deaths}' WHERE 누적사망자='{str(data[7])}'"
+                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
         self.conn.commit()
         self.conn.close()
 
-
+    # def delete_data(self):
 
 
 if __name__ == '__main__':
