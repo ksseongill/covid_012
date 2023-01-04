@@ -135,7 +135,7 @@
     <widget class="QPushButton" name="btn_change">
      <property name="geometry">
       <rect>
-       <x>780</x>
+       <x>790</x>
        <y>410</y>
        <width>75</width>
        <height>23</height>
@@ -148,7 +148,7 @@
     <widget class="QPushButton" name="btn_graph">
      <property name="geometry">
       <rect>
-       <x>690</x>
+       <x>700</x>
        <y>410</y>
        <width>75</width>
        <height>23</height>
