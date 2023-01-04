@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import numpy as np
-
+from matplotlib import font_manager,rc
 
 form_class= uic.loadUiType("covid.ui")[0]
 class Covid_project(QWidget,form_class):
@@ -88,34 +88,20 @@ class Covid_project(QWidget,form_class):
         for i in range(len(self.a)):
             print(self.a[i])
         self.conn.close()
-        self.fig = plt.Figure()
-        self.canvas = FigureCanvas(self.fig)
-        self.graph_verticalLayout.addWidget(self.canvas)
         date_list= list()
         cumulative= list()
-
+        font_path = "C:\\Windows\\Fonts\\gulim.ttc"
+        # 폰트 패스를 통해 폰트 세팅해 폰트 이름 반환받아 font 변수에 삽입
+        font = font_manager.FontProperties(fname=font_path).get_name()
+        # 폰트 설정
+        rc('font', family=font)
         for i in self.a:
             date_list.append(i[0])
             cumulative.append(int(i[5]))
-        datetime_format = '%y-%m-%d'
-        for i in date_list:
-            datetime_result = datetime.strptime(i, datetime_format)
-            print(type(i))
-
-
-        x = np.linspace(date_list[0],date_list[len(date_list)],len(date_list)//10)
-        y = np.linspace(min(cumulative),max(cumulative),max(cumulative)//10)
-
-
-        ax = self.fig.add_subplot(111)
-        ax.plot(x, y, label="Cumulative_cases")
-        ax.set_xlabel("x")
-        ax.set_xlabel("y")
-
-        ax.set_title("my sin graph")
-        ax.legend()
-        self.canvas.draw()
-
+        plt.title(f'{select_country} {year_month}월 누적확진자')
+        plt.xticks([0,len(date_list)//2,len(date_list)-1])
+        plt.plot(date_list,cumulative)
+        plt.show()
 
 
         # self.cursor.execute(f'select * from covid_012 where 국가 = '{self.result[row][2]}'')
