@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
-form_class= uic.loadUiType("covid.ui")[0]
+form_class = uic.loadUiType("covid.ui")[0]
 class Covid_project(QWidget,form_class):
     def __init__(self):
         super().__init__()
@@ -44,8 +44,6 @@ class Covid_project(QWidget,form_class):
         self.stackedWidget.setCurrentIndex(0)
 
     def add_data_complete(self):    # 완료버튼 클릭시, 마지막 에디터에서 엔터를 쳤을 경우
-        print(' def add_data_comp')
-        self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
         # 라인에디터 텍스트 받기-------------------------------------------------------
         date = self.date.text()
         country = self.country.text()
@@ -53,7 +51,7 @@ class Covid_project(QWidget,form_class):
         cumulative_cases = self.cumulative_cases.text()
         new_deaths = self.new_deaths.text()
         cumulative_deaths = self.cumulative_deaths.text()
-        print('cumulative_deaths = self.cumulative_deaths.text()')
+
         # DB 추가-------------------------------------------------------------------
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
@@ -61,14 +59,14 @@ class Covid_project(QWidget,form_class):
         self.cursor.execute(
             f"INSERT INTO covid_012(날짜,국가,신규확진자,누적확진자,신규사망자,누적사망자) VALUES('{date}','{country}',{int(new_cases)},{int(cumulative_cases)},{int(new_deaths)},{int(cumulative_deaths)})")
 
-
         # DB 저장
-        print('self.cursor.execute')
+
         self.conn.commit()
         # DB 닫기
         self.conn.close()
-        #메시지 박스 만들어야함--------------------------------------------------------
-        print('추가되었습니다. 메시지박스')
+        QMessageBox.information(self, '추가',  f"날짜:{date}\n국가:{country}\n신규확진자:{int(new_cases)}\n누적확진자:{int(cumulative_cases)}\n"
+                                             f"신규사망자:{int(new_deaths)}\n누적사망자:{int(cumulative_deaths)}\n추가되었습니다")
+        self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
     def btn_enable(self):
         self.btn_graph.setEnabled(True)
         self.btn_change.setEnabled(True)
@@ -91,7 +89,7 @@ class Covid_project(QWidget,form_class):
                             f"and 국가 = '{select_country}';")
         self.a = self.cursor.fetchall()
         for i in range(len(self.a)):
-            print(self.a[i])
+            i
         self.conn.close()
         # --------------------------------------------------------------------
         # 폰트 설정
@@ -128,22 +126,15 @@ class Covid_project(QWidget,form_class):
 
     def search(self):
         search_word = self.line_serach.text()
-        print(search_word)
-        # sql = open("yh_test_covid.sql").read()  # .sql 파일 읽음
-        # self.cursor.execute(sql)
-        # self.cursor.fetchall()
-        # self.conn.close()
-        # sql = f"SELECT * FROM `test_covid` where %{search_word}%;"
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
         self.cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{search_word}%'"
                             f"and 삭제여부 = '0' order by 국가 and 날짜")
-        # self.cursor.execute(
-        #     f"SELECT * FROM covid_012 order by 국가 ")
+
         self.result = self.cursor.fetchall()
         for i in range(len(self.result)):
-            print(self.result[i])
+            i
         self.covid_table.setRowCount(len(self.result))
         Row = 0
 
@@ -154,19 +145,12 @@ class Covid_project(QWidget,form_class):
             self.covid_table.setItem(Row, 3, QTableWidgetItem(str(k[5])))    # 누적 확진자
             self.covid_table.setItem(Row, 4, QTableWidgetItem(str(k[6])))    # 신규 사망자
             self.covid_table.setItem(Row, 5, QTableWidgetItem(str(k[7])))    # 누적 사망자
-            # self.covid_table.setItem(Row, 6, QTableWidgetItem(k[6]))
-            # self.YH_main.setItem(Row, 7, QTableWidgetItem('-'))
             Row += 1
         self.conn.close()
 
     def change_data(self):
         self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
         data = self.result[self.covid_table.currentRow()]   # 테이블 위젯의 result 값을 data에 저장
-        print('7777777777777777')
-        print(self.result[self.covid_table.currentRow()])
-        print('55555555555555')
-        # print(self.covid_table.currentRow())
-        print('data123123')
         row = self.covid_table.selectedItems()     # 테이블 위젯의 항목 리스트 형식으로 반환된 값을 row에 저장
         date = row[0].text()                # 날짜
         country = row[1].text()             # 국가
@@ -174,7 +158,6 @@ class Covid_project(QWidget,form_class):
         cumulative_cases = row[3].text()    # 누적확진자
         new_deaths = row[4].text()          # 신규사망자
         cumulative_deaths = row[5].text()   # 누적사망자
-        print('cumulative_deaths = row[5].text()')
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
@@ -183,10 +166,10 @@ class Covid_project(QWidget,form_class):
 
         self.conn.commit()
         self.conn.close()
+        QMessageBox.information(self, '수정', '수정되었습니다')
 
     def delete_data(self):
         self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
-        print(self.data)
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                     charset='utf8')
         self.cursor = self.conn.cursor()
@@ -195,6 +178,9 @@ class Covid_project(QWidget,form_class):
             f"where 날짜='{self.data[0]}' and 국가='{self.data[2]}'")
         self.conn.commit()
         self.conn.close()
+        QMessageBox.information(self, '삭제','삭제되었습니다')
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
