@@ -32,18 +32,21 @@ class Covid_project(QWidget,form_class):
 
     def move_main(self):    # 취소를 눌렀을 때 메인페이지로 이동
         self.stackedWidget.setCurrentIndex(0)
+        self.le_clear()
 
+    def le_clear(self):
+        self.date.clear()
+        self.country.clear()
+        self.new_cases.clear()
+        self.new_deaths.clear()
+        self.cumulative_cases.clear()
+        self.cumulative_deaths.clear()
     def check_add(self):    # 추가 재확인
         ck_add = QMessageBox.question(self, '추가', '추가 하시겠습니까?', QMessageBox.Yes | QMessageBox.No)
         if ck_add == QMessageBox.Yes:
             self.add_data_complete()
         else: # 라인에디터 클리어
-            self.date.clear()
-            self.country.clear()
-            self.new_cases.clear()
-            self.new_deaths.clear()
-            self.cumulative_cases.clear()
-            self.cumulative_deaths.clear()
+            self.le_clear()
     def add_data_complete(self):    # 완료버튼 클릭시, 마지막 에디터에서 엔터를 쳤을 경우
         try:
             # 라인에디터 텍스트 받기-------------------------------------------------------
@@ -155,31 +158,40 @@ class Covid_project(QWidget,form_class):
             Row += 1
         self.conn.close()
     def check_change(self): # 수정 재확인
-        ck_chage = QMessageBox.question(self, '수정', '수정 하시겠습니까?', QMessageBox.Yes | QMessageBox.No, )
-        if ck_chage == QMessageBox.Yes:
-            self.change_data()
-        else: return
+        self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
+        self.row = self.covid_table.selectedItems()  # 테이블 위젯의 항목 리스트 형식으로 반환된 값을 row에 저장
+        print('시발')
+        print(self.row)
+        #이거 수정해야돼
+        self.date = self.row[0].text()  # 날짜
+        self.country = self.row[1].text()  # 국가
+        self.new_cases = self.row[2].text()  # 신규확진자
+        self.cumulative_cases = self.row[3].text()  # 누적확진자
+        self.new_deaths = self.row[4].text()  # 신규사망자
+        self.cumulative_deaths = self.row[5].text()  # 누적사망자
+        if self.covid_table.currentRow()== -1:
+            QMessageBox.information(self, '수정', '선택된 값이 없습니다.')
+        elif self.data==self.row.text():
+            print('수정된 값이 없습니다.')
+        else:
+            ck_chage = QMessageBox.question(self, '수정', '수정 하시겠습니까?', QMessageBox.Yes | QMessageBox.No, )
+            if ck_chage == QMessageBox.Yes:
+                self.change_data()
+            else: return
     def change_data(self):
         try:
             self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
 
             data = self.result[self.covid_table.currentRow()]   # 테이블 위젯의 result 값을 data에 저장
-            row = self.covid_table.selectedItems()     # 테이블 위젯의 항목 리스트 형식으로 반환된 값을 row에 저장
-            date = row[0].text()                # 날짜
-            country = row[1].text()             # 국가
-            if data[0]!=date or data[2] != country:
+            if self.data[0]!=self.date or data[2] != self.country:
                 QMessageBox.information(self, '수정', '날짜와 국가는 수정 할 수 없습니다.')
                 self.search()
                 return
-            new_cases = row[2].text()           # 신규확진자
-            cumulative_cases = row[3].text()    # 누적확진자
-            new_deaths = row[4].text()          # 신규사망자
-            cumulative_deaths = row[5].text()   # 누적사망자
             self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                    charset='utf8')
             self.cursor = self.conn.cursor()
-            self.cursor.execute(f"UPDATE covid_012 SET 신규확진자='{new_cases}', 누적확진자='{cumulative_cases}', 신규사망자='{new_deaths}', 누적사망자='{cumulative_deaths}'"
-                                f"where 날짜='{data[0]}' and 국가='{data[2]}'")
+            self.cursor.execute(f"UPDATE covid_012 SET 신규확진자='{self.new_cases}', 누적확진자='{self.cumulative_cases}', 신규사망자='{self.new_deaths}', 누적사망자='{self.cumulative_deaths}'"
+                                f"where 날짜='{self.data[0]}' and 국가='{self.data[2]}'")
             self.conn.commit()
             self.conn.close()
             QMessageBox.information(self, '수정', '수정되었습니다.')
