@@ -29,7 +29,7 @@ class Covid_project(QWidget,form_class):
         #-------------------------------------------------------------------
         self.line_serach.returnPressed.connect(self.search)
         self.btn_search.clicked.connect(self.search)
-        # self.covid_table.cellClicked.connect(self.btn_graph_able)
+        self.covid_table.cellClicked.connect(self.btn_enable)
         self.btn_graph.clicked.connect(self.draw_graph)
         self.btn_del.clicked.connect(self.delete_data)
         #-------------------------------------------------------------------
@@ -69,9 +69,10 @@ class Covid_project(QWidget,form_class):
         self.conn.close()
         #메시지 박스 만들어야함--------------------------------------------------------
         print('추가되었습니다. 메시지박스')
-    def btn_graph_able(self):
+    def btn_enable(self):
         self.btn_graph.setEnabled(True)
-
+        self.btn_change.setEnabled(True)
+        self.btn_del.setEnabled(True)
     def draw_graph(self):
         # --------------------------------------------------------------------
         # 그래프에 넣을 값 가져오기

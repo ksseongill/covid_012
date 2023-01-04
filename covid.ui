@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>900</height>
+    <height>897</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -106,6 +106,9 @@
      </property>
     </widget>
     <widget class="QPushButton" name="btn_del">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>970</x>
@@ -123,16 +126,19 @@
       <rect>
        <x>59</x>
        <y>449</y>
-       <width>451</width>
+       <width>1021</width>
        <height>381</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="graph_verticalLayout"/>
     </widget>
     <widget class="QPushButton" name="btn_change">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
-       <x>780</x>
+       <x>790</x>
        <y>410</y>
        <width>75</width>
        <height>23</height>
@@ -143,12 +149,15 @@
      </property>
     </widget>
     <widget class="QPushButton" name="btn_graph">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
-       <x>690</x>
+       <x>680</x>
        <y>410</y>
-       <width>75</width>
-       <height>23</height>
+       <width>93</width>
+       <height>28</height>
       </rect>
      </property>
      <property name="text">
