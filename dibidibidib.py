@@ -34,7 +34,6 @@ class Covid_project(QWidget,form_class):
         self.btn_del.clicked.connect(self.delete_data)
         #-------------------------------------------------------------------
 
-
     def add_data(self):     # 추가를 눌렀을 때 추가페이지로 이동
         self.stackedWidget.setCurrentIndex(1)
 
@@ -49,7 +48,6 @@ class Covid_project(QWidget,form_class):
         cumulative_cases = self.cumulative_cases.text()
         new_deaths = self.new_deaths.text()
         cumulative_deaths = self.cumulative_deaths.text()
-
         # DB 추가-------------------------------------------------------------------
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
@@ -64,12 +62,10 @@ class Covid_project(QWidget,form_class):
         QMessageBox.information(self, '추가',  f"날짜:{date}\n국가:{country}\n신규확진자:{int(new_cases)}\n누적확진자:{int(cumulative_cases)}\n"
                                              f"신규사망자:{int(new_deaths)}\n누적사망자:{int(cumulative_deaths)}\n추가되었습니다")
         self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
-
     def btn_enable(self):
         self.btn_graph.setEnabled(True)
         self.btn_change.setEnabled(True)
         self.btn_del.setEnabled(True)
-
     def draw_graph(self):
         # --------------------------------------------------------------------
         # 그래프에 넣을 값 가져오기
@@ -88,7 +84,7 @@ class Covid_project(QWidget,form_class):
                             f"and 국가 = '{select_country}';")
         self.a = self.cursor.fetchall()
         for i in range(len(self.a)):
-            print(self.result[i])
+            i
         self.conn.close()
         # --------------------------------------------------------------------
         # 폰트 설정
@@ -111,12 +107,15 @@ class Covid_project(QWidget,form_class):
             self.graph_verticalLayout.itemAt(i).widget().close()
         self.graph_verticalLayout.addWidget(self.canvas)
         self.ax = self.fig.add_subplot(111)
+        # self.ax.tick_params(axis='x')
+        self.ax.grid(axis='y')
+        self.ax.tick_params(axis='y', colors='red',rotation=45)
         self.ax.plot(x, y, label=f'{year_month}')
         self.ax.set_xticks([0,len(x)//2,len(x)-1])
-        self.ax.set_xlabel("x")
-        self.ax.set_xlabel("y")
+
+        self.ax.set_xlabel("날짜",color='gray')
+        self.ax.set_ylabel("누적확진자",color='gray')
         self.ax.set_title(f'{select_country} {year_month}월 누적확진자')
-        self.ax.legend()
         self.canvas.draw()
 
 
