@@ -36,7 +36,7 @@ class Covid_project(QWidget,form_class):
         self.btn_search.clicked.connect(self.search)
         # self.covid_table.cellClicked.connect(self.btn_graph_able)
         self.btn_graph.clicked.connect(self.draw_graph)
-        # self.btn_del.clicked.connect(self.delete_data)
+        self.btn_del.clicked.connect(self.delete_data)
         #-------------------------------------------------------------------
 
 
@@ -47,6 +47,7 @@ class Covid_project(QWidget,form_class):
         self.stackedWidget.setCurrentIndex(0)
 
     def add_data_complete(self):    # 완료버튼 클릭시, 마지막 에디터에서 엔터를 쳤을 경우
+        print(' def add_data_comp')
         self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
         # 라인에디터 텍스트 받기-------------------------------------------------------
         date = self.date.text()
@@ -55,13 +56,17 @@ class Covid_project(QWidget,form_class):
         cumulative_cases = self.cumulative_cases.text()
         new_deaths = self.new_deaths.text()
         cumulative_deaths = self.cumulative_deaths.text()
+        print('cumulative_deaths = self.cumulative_deaths.text()')
         # DB 추가-------------------------------------------------------------------
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
         self.cursor.execute(
-            f"INSERT INTO test_covid(날짜,국가,신규확진자,누적확진자,신규사망자,누적사망자) VALUES('{date}','{country}',{int(new_cases)},{int(cumulative_cases)},{int(new_deaths)},{int(cumulative_deaths)})")
+            f"INSERT INTO covid_012(날짜,국가,신규확진자,누적확진자,신규사망자,누적사망자) VALUES('{date}','{country}',{int(new_cases)},{int(cumulative_cases)},{int(new_deaths)},{int(cumulative_deaths)})")
+
+
         # DB 저장
+        print('self.cursor.execute')
         self.conn.commit()
         # DB 닫기
         self.conn.close()
@@ -117,7 +122,10 @@ class Covid_project(QWidget,form_class):
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
-        self.cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{search_word}%'")
+        self.cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{search_word}%'"
+                            f"and 삭제여부 = '0' order by 국가 and 날짜")
+        # self.cursor.execute(
+        #     f"SELECT * FROM covid_012 order by 국가 ")
         self.result = self.cursor.fetchall()
         for i in range(len(self.result)):
             print(self.result[i])
@@ -138,33 +146,40 @@ class Covid_project(QWidget,form_class):
 
     def change_data(self):
         self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
-        data = self.result[self.covid_table.currentRow()]       # 테이블 위젯의 result 값을 data에 저장
+        data = self.result[self.covid_table.currentRow()]   # 테이블 위젯의 result 값을 data에 저장
+        print('7777777777777777')
+        print(self.result[self.covid_table.currentRow()])
+        print('55555555555555')
+        # print(self.covid_table.currentRow())
+        print('data123123')
         row = self.covid_table.selectedItems()     # 테이블 위젯의 항목 리스트 형식으로 반환된 값을 row에 저장
-        date = row[0].text()       # 날짜
-        country = row[1].text()    # 국가
+        date = row[0].text()                # 날짜
+        country = row[1].text()             # 국가
         new_cases = row[2].text()           # 신규확진자
         cumulative_cases = row[3].text()    # 누적확진자
         new_deaths = row[4].text()          # 신규사망자
         cumulative_deaths = row[5].text()   # 누적사망자
+        print('cumulative_deaths = row[5].text()')
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
-        self.cursor.execute(f"UPDATE covid_012 SET 날짜='{date}' WHERE 날짜='{data[0]}'")
-        self.cursor.execute(f"UPDATE covid_012 SET 국가='{country}' WHERE 국가='{data[2]}'")
-        self.cursor.execute(f"UPDATE covid_012 SET 신규확진자='{new_cases}' WHERE 신규확진자='{str(data[4])}'"
-                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
-        self.cursor.execute(f"UPDATE covid_012 SET 누적확진자='{cumulative_cases}' WHERE 누적확진자='{str(data[5])}'"
-                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
-        self.cursor.execute(f"UPDATE covid_012 SET 신규사망자='{new_deaths}' WHERE 신규사망자='{str(data[6])}'"
-                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
-        self.cursor.execute(f"UPDATE covid_012 SET 누적사망자='{cumulative_deaths}' WHERE 누적사망자='{str(data[7])}'"
-                            f"and 날짜='{data[0]}' and 국가='{data[2]}'")
+        self.cursor.execute(f"UPDATE covid_012 SET 신규확진자='{new_cases}', 누적확진자='{cumulative_cases}', 신규사망자='{new_deaths}', 누적사망자='{cumulative_deaths}'"
+                            f"where 날짜='{data[0]}' and 국가='{data[2]}'")
+
         self.conn.commit()
         self.conn.close()
 
-    # def delete_data(self):
-
-
+    def delete_data(self):
+        self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
+        print(self.data)
+        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+                                    charset='utf8')
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(
+            f"UPDATE covid_012 SET 삭제여부= CONCAT ('1')"
+            f"where 날짜='{self.data[0]}' and 국가='{self.data[2]}'")
+        self.conn.commit()
+        self.conn.close()
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
