@@ -35,8 +35,6 @@ class Covid_project(QWidget,form_class):
         #-------------------------------------------------------------------
 
 
-
-
     def add_data(self):     # 추가를 눌렀을 때 추가페이지로 이동
         self.stackedWidget.setCurrentIndex(1)
 
@@ -60,17 +58,18 @@ class Covid_project(QWidget,form_class):
             f"INSERT INTO covid_012(날짜,국가,신규확진자,누적확진자,신규사망자,누적사망자) VALUES('{date}','{country}',{int(new_cases)},{int(cumulative_cases)},{int(new_deaths)},{int(cumulative_deaths)})")
 
         # DB 저장
-
         self.conn.commit()
         # DB 닫기
         self.conn.close()
         QMessageBox.information(self, '추가',  f"날짜:{date}\n국가:{country}\n신규확진자:{int(new_cases)}\n누적확진자:{int(cumulative_cases)}\n"
                                              f"신규사망자:{int(new_deaths)}\n누적사망자:{int(cumulative_deaths)}\n추가되었습니다")
         self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
+
     def btn_enable(self):
         self.btn_graph.setEnabled(True)
         self.btn_change.setEnabled(True)
         self.btn_del.setEnabled(True)
+
     def draw_graph(self):
         # --------------------------------------------------------------------
         # 그래프에 넣을 값 가져오기
@@ -89,7 +88,7 @@ class Covid_project(QWidget,form_class):
                             f"and 국가 = '{select_country}';")
         self.a = self.cursor.fetchall()
         for i in range(len(self.a)):
-            i
+            print(self.result[i])
         self.conn.close()
         # --------------------------------------------------------------------
         # 폰트 설정
@@ -134,7 +133,7 @@ class Covid_project(QWidget,form_class):
 
         self.result = self.cursor.fetchall()
         for i in range(len(self.result)):
-            i
+            print(self.result[i])
         self.covid_table.setRowCount(len(self.result))
         Row = 0
 
