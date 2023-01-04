@@ -168,6 +168,7 @@ class Covid_project(QWidget,form_class):
         self.conn.close()
         QMessageBox.information(self, '수정', '수정되었습니다')
 
+
     def delete_data(self):
         self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
