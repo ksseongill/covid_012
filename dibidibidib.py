@@ -115,7 +115,6 @@ class Covid_project(QWidget,form_class):
         self.ax = self.fig.add_subplot(111)
         self.ax.plot(x, y, label=f'{year_month}')
         self.ax.set_xticks([0,len(x)//2,len(x)-1])
-        # self.ax.set_yticks([0,len(y)//2,len(y)-1])
         self.ax.set_xlabel("x")
         self.ax.set_xlabel("y")
         self.ax.set_title(f'{select_country} {year_month}월 누적확진자')
