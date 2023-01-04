@@ -181,6 +181,7 @@ class Covid_project(QWidget,form_class):
         QMessageBox.information(self, '삭제','삭제되었습니다')
 
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
