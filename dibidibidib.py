@@ -1,17 +1,13 @@
 import pymysql
 import sys
-from PyQt5.QtWidgets import QTableWidgetItem, QAbstractItemView
-from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
-from datetime import datetime
-import time
+from matplotlib import font_manager,rc
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import numpy as np
-from matplotlib import font_manager,rc
 
 form_class= uic.loadUiType("covid.ui")[0]
 class Covid_project(QWidget,form_class):
@@ -25,7 +21,6 @@ class Covid_project(QWidget,form_class):
         self.cursor.execute('SELECT * FROM covid_012')
         self.a = self.cursor.fetchall()
         self.conn.close()
-        self.header='날짜,국가코드,국가,WHO지역,신규 확진자,신규 사망자,누적 사망자'
         self.btn_add.clicked.connect(self.add_data)
         self.btn_complete.clicked.connect(self.add_data_complete)
         self.cumulative_deaths.returnPressed.connect(self.add_data_complete)
@@ -38,6 +33,8 @@ class Covid_project(QWidget,form_class):
         self.btn_graph.clicked.connect(self.draw_graph)
         # self.btn_del.clicked.connect(self.delete_data)
         #-------------------------------------------------------------------
+
+
 
 
     def add_data(self):     # 추가를 눌렀을 때 추가페이지로 이동
@@ -71,14 +68,16 @@ class Covid_project(QWidget,form_class):
         self.btn_graph.setEnabled(True)
 
     def draw_graph(self):
+        # --------------------------------------------------------------------
+        # 그래프에 넣을 값 가져오기
         row= self.covid_table.currentRow()
-        print("선택된 열의 인덱스",row)
         print(row)
         select_country=self.result[row][2]
         select_date=self.result[row][0].split('-')
         year_month=select_date[0]+'-'+select_date[1]
         print(year_month)
-        print(type(year_month))
+        # --------------------------------------------------------------------
+        # sql 데이터 가져오기
         self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
         self.cursor = self.conn.cursor()
@@ -88,20 +87,36 @@ class Covid_project(QWidget,form_class):
         for i in range(len(self.a)):
             print(self.a[i])
         self.conn.close()
-        date_list= list()
-        cumulative= list()
+        # --------------------------------------------------------------------
+        # 폰트 설정
         font_path = "C:\\Windows\\Fonts\\gulim.ttc"
         # 폰트 패스를 통해 폰트 세팅해 폰트 이름 반환받아 font 변수에 삽입
         font = font_manager.FontProperties(fname=font_path).get_name()
         # 폰트 설정
         rc('font', family=font)
+        x= list()
+        y= list()
+
         for i in self.a:
-            date_list.append(i[0])
-            cumulative.append(int(i[5]))
-        plt.title(f'{select_country} {year_month}월 누적확진자')
-        plt.xticks([0,len(date_list)//2,len(date_list)-1])
-        plt.plot(date_list,cumulative)
-        plt.show()
+            x.append(i[0])
+            y.append(int(i[5]))
+
+        self.fig = plt.Figure()
+        self.canvas = FigureCanvas(self.fig)
+        # 그래프 초기화
+        for i in range(self.graph_verticalLayout.count()):
+            self.graph_verticalLayout.itemAt(i).widget().close()
+        self.graph_verticalLayout.addWidget(self.canvas)
+        self.ax = self.fig.add_subplot(111)
+        self.ax.plot(x, y, label=f'{year_month}')
+        self.ax.set_xticks([0,len(x)//2,len(x)-1])
+        # self.ax.set_yticks([0,len(y)//2,len(y)-1])
+        self.ax.set_xlabel("x")
+        self.ax.set_xlabel("y")
+        self.ax.set_title(f'{select_country} {year_month}월 누적확진자')
+        self.ax.legend()
+        self.canvas.draw()
+
 
 
         # self.cursor.execute(f'select * from covid_012 where 국가 = '{self.result[row][2]}'')
