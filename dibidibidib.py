@@ -158,21 +158,23 @@ class Covid_project(QWidget,form_class):
             Row += 1
         self.conn.close()
     def check_change(self): # 수정 재확인
+        if self.covid_table.currentRow()== -1:
+            QMessageBox.information(self, '수정', '선택된 값이 없습니다.')
+            return
         self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
-        self.row = self.covid_table.selectedItems()  # 테이블 위젯의 항목 리스트 형식으로 반환된 값을 row에 저장
-        print('시발')
-        print(self.row)
-        #이거 수정해야돼
+        self.row = self.covid_table.selectedItems()        # 테이블 위젯의 항목 리스트 형식으로 반환된 값을 row에 저장
         self.date = self.row[0].text()  # 날짜
         self.country = self.row[1].text()  # 국가
         self.new_cases = self.row[2].text()  # 신규확진자
         self.cumulative_cases = self.row[3].text()  # 누적확진자
         self.new_deaths = self.row[4].text()  # 신규사망자
         self.cumulative_deaths = self.row[5].text()  # 누적사망자
-        if self.covid_table.currentRow()== -1:
-            QMessageBox.information(self, '수정', '선택된 값이 없습니다.')
-        elif self.data==self.row.text():
-            print('수정된 값이 없습니다.')
+        if self.data[0] != self.date or self.data[2] != self.country:
+                QMessageBox.information(self, '수정', '날짜와 국가는 수정 할 수 없습니다.')
+                self.search()
+                return
+        elif self.data[4:-1] == (int(self.new_cases),int(self.cumulative_cases),int(self.new_deaths),int(self.cumulative_deaths)):
+            QMessageBox.information(self, '수정', '수정된 값이 없습니다.')
         else:
             ck_chage = QMessageBox.question(self, '수정', '수정 하시겠습니까?', QMessageBox.Yes | QMessageBox.No, )
             if ck_chage == QMessageBox.Yes:
@@ -182,11 +184,6 @@ class Covid_project(QWidget,form_class):
         try:
             self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
 
-            data = self.result[self.covid_table.currentRow()]   # 테이블 위젯의 result 값을 data에 저장
-            if self.data[0]!=self.date or data[2] != self.country:
-                QMessageBox.information(self, '수정', '날짜와 국가는 수정 할 수 없습니다.')
-                self.search()
-                return
             self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                    charset='utf8')
             self.cursor = self.conn.cursor()
