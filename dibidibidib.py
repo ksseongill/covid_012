@@ -80,11 +80,13 @@ class Covid_project(QWidget,form_class):
     def draw_graph(self):   # 그래프 그리기
         try :
             # --------------------------------------------------------------------
-            # 그래프에 넣을 값 가져오기
+            # 그래프에 넣을 값 가져오기 row에 사용자가 선택한 테이블위젯의 행이 들어가 있음 ex)5번째 행을 선택했다면 5
             row= self.covid_table.currentRow()
-            print(row)
+            # select_country에 검색결과[선택행의 인덱스][국가 인덱스]를 담아줌 ex) 대한민국
             select_country=self.result[row][2]
+            # select_date에 검색결과[선택행의 인덱스][날짜 인덱스]를 '-'를 기준으로 쪼개서 넣어줌 ex) ['2020','01','05']
             select_date=self.result[row][0].split('-')
+            # year_month에 필요한 값 년-월 형식으로 넣어줌 ex)'2020-01'
             year_month=select_date[0]+'-'+select_date[1]
             print(year_month)
             # --------------------------------------------------------------------
@@ -92,11 +94,15 @@ class Covid_project(QWidget,form_class):
             self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                    charset='utf8')
             self.cursor = self.conn.cursor()
+            # year_month와 같은 값들의 데이터를 불러옴
             self.cursor.execute(f"SELECT * FROM covid_012 where 날짜 like '%{year_month}%'"
                                 f"and 국가 = '{select_country}';")
+            # 불러온 값을 self.a에 넣어줌
             self.a = self.cursor.fetchall()
+            # 불러온 값 확인용 출력
             for i in range(len(self.a)):
                 print(self.a[i])
+            # 데이터 닫기
             self.conn.close()
             # --------------------------------------------------------------------
             # 폰트 설정
@@ -105,26 +111,38 @@ class Covid_project(QWidget,form_class):
             font = font_manager.FontProperties(fname=font_path).get_name()
             # 폰트 설정
             rc('font', family=font)
+            # x,y 리스트 생성
             x= list()
             y= list()
+            # x리스트에는 날짜를 넣고 y리스트에는 누적확진자를 넣어줌
             for i in self.a:
                 x.append(i[0])
                 y.append(int(i[5]))
+            # 그래프 생성
             self.fig = plt.Figure()
             self.canvas = FigureCanvas(self.fig)
-            # 그래프 초기화
+            # 그래프 초기화 그래프가 이미 들어가 있을 때 다른 그래프를 넣으면 바뀌게 해줌
             for i in range(self.graph_verticalLayout.count()):
                 self.graph_verticalLayout.itemAt(i).widget().close()
+            # 레이아웃에 그래프 넣어주기
             self.graph_verticalLayout.addWidget(self.canvas)
+            # self.fig.add_subplot(x축갯수,y축갯수,몇번째 그래프) 이건 걍 그림봐야됨
             self.ax = self.fig.add_subplot(111)
             # self.ax.tick_params(axis='x')
+            # 격자 넣기 이거 같은 경우에는 y축에만 넣었음
             self.ax.grid(axis='y')
+            # y축의 속성값 변경해주기 색상=빨간색 회전=45도
             self.ax.tick_params(axis='y', colors='red',rotation=45)
+            # 이제 그래프를 그릴 껀데 x리스트에 있는 걸 x축에 넣고, y리스트를 y축에 넣고 라벨에는 선택한 년월이 들어감
             self.ax.plot(x, y, label=f'{year_month}')
+            # x축의 값들이 길어서 겹쳐보이기 때문에 3개만 넣어주는거임 ex)01-03~01-31까지 있는 데이터면 01-03,01-07,01-31
             self.ax.set_xticks([0,len(x)//2,len(x)-1])
+            # x랑 y축이 뭔지 설명해주는거
             self.ax.set_xlabel("날짜",color='gray')
             self.ax.set_ylabel("누적확진자",color='gray')
+            # 그래프의 제목
             self.ax.set_title(f'{select_country} {year_month}월 누적확진자')
+            # 그래프 그리기
             self.canvas.draw()
         except: pass
 
