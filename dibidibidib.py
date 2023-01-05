@@ -109,7 +109,16 @@ class Covid_project(QWidget,form_class):
                                 f"and 국가 = '{select_country}'"
                                 f"or 날짜 like '2018%' and 국가 = '{select_country}';")
             self.b = self.cursor.fetchall()
-            print(self.b)
+            self.cursor.execute(f"SELECT * FROM dutyfree where 구분 like '합계'")
+            self.c = self.cursor.fetchone()
+            header = ['구분', '2019년 1월', '2019년 2월', '2019년 3월', '2019년 4월', '2019년 5월', '2019년 6월',
+                      '2019년 7월', '2019년 8월', '2019년 9월', '2019년 10월', '2019년 11월', '2019년 12월',
+                      '2020년 1월', '2020년 2월', '2020년 3월', '2020년 4월', '2020년 5월', '2020년 6월',
+                      '2020년 7월', '2020년 8월', '2020년 9월', '2020년 10월', '2020년 11월', '2020년 12월',
+                      '2021년 1월', '2021년 2월', '2021년 3월', '2021년 4월', '2021년 5월', '2021년 6월',
+                      '2021년 7월', '2021년 8월', '2021년 9월', '2021년 10월', '2021년 11월', '2021년 12월',
+                      '2022년 1월', '2022년 2월', '2022년 3월', '2022년 4월', '2022년 5월', '2022년 6월', '2022년 7월']
+            print(self.c)
             print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
             # 불러온 값을 self.a에 넣어줌
             # 불러온 값 확인용 출력
@@ -130,10 +139,12 @@ class Covid_project(QWidget,form_class):
             list_y = []  # x축 빈리스트
             list_x = []
             covid_y = []
+            duty_x = []
+            duty_y = []
+            duty_y2 = []
             print(self.b)
             print('gggggggggggggggg')
             for row in self.b:  # db정보 다 읽고
-
                 year = row[0].split('-')[0]  # data 리스트의 연도 -로 구분하고 0번째 값
                 if year == '2018':  # year가 2018일때
                     list_y.append(int(row[4]))  # y리스트에 여객수를 추가
@@ -141,13 +152,42 @@ class Covid_project(QWidget,form_class):
                 else:
                     covid_y.append(int(row[4]))
 
+            for i in header:
+                if '2019' in i:
+                    duty_x.append(i.replace('2019년 ', ''))
+            print(duty_x)
+            print('sssssssssssssssssssssss')
+            for i in self.c[:13]:
+                if i != '합계':
+                    duty_y.append(i)
+            print(duty_y)
+            print('nnnnnnnnnnnnnnnnnnnn')
+            if year == '2019':
+                pass
+            elif year == '2020':
+                for i in self.c[13:25]:
+                    if i != '합계':
+                        duty_y2.append(i)
+                print(duty_y2)
+                print('qqqqqqqqqqqqqqqq')
+            elif year == '2021':
+                for i in self.c[25:36]:
+                    if i != '합계':
+                        duty_y2.append(i)
+                print(duty_y2)
+                print('pppppppppppppppppp')
+            elif year == '2022':
+                for i in self.c[36:]:
+                    if i != '합계':
+                        duty_y2.append(i)
+                print(duty_y2)
+                print('rrrrrrrrrrrrrrrrrrrrrrrrrrrr')
+
             # x리스트에는 날짜를 넣고 y리스트에는 누적확진자를 넣어줌
             for i in self.a:
                 x.append(i[0])
                 y.append(int(i[5]))
             print('aaaaaaaaaaaaaaaaaaaaaaaaaa')
-            print(list_x)
-            print('kkkkkkkkkkkkkkkkkkkkkkk')
             # 그래프 생성
             self.fig = plt.Figure()
             self.fig_2 = plt.Figure()
@@ -167,34 +207,42 @@ class Covid_project(QWidget,form_class):
             # self.fig.add_subplot(x축갯수,y축갯수,몇번째 그래프) 이건 걍 그림봐야됨
             self.ax = self.fig.add_subplot(111)
             self.ax2 = self.fig_2.add_subplot(111)
-            # self.ax3 = self.fig_3.add_subplot(111)
+            self.ax3 = self.fig_3.add_subplot(111)
             # self.ax.tick_params(axis='x')
             # 격자 넣기 이거 같은 경우에는 y축에만 넣었음
             self.ax.grid(axis='y')
             self.ax2.grid(axis='y')
+            self.ax3.grid(axis='y')
 
             # y축의 속성값 변경해주기 색상=빨간색 회전=45도
             self.ax.tick_params(axis='y', colors='red', rotation=45, labelsize=8)
             self.ax2.tick_params(axis='y', colors='black', rotation=45, labelsize=8)
+            self.ax3.tick_params(axis='y', colors='black', rotation=45, labelsize=8)
 
             # 이제 그래프를 그릴 껀데 x리스트에 있는 걸 x축에 넣고, y리스트를 y축에 넣고 라벨에는 선택한 년월이 들어감
             self.ax.plot(x, y, label=f'{year_month}')
             self.ax2.plot(list_x, list_y, 'hotpink', label='2018')
             self.ax2.plot(covid_y, 'b', label=f"{year}")
+            self.ax3.plot(duty_x, duty_y, 'hotpink', label='2019')
+            self.ax3.plot(duty_y2, 'b', label=f"{year}")
 
             # x축의 값들이 길어서 겹쳐보이기 때문에 3개만 넣어주는거임 ex)01-03~01-31까지 있는 데이터면 01-03,01-07,01-31
             self.ax.set_xticks([0, len(x) // 2, len(x) - 1])
             # x랑 y축이 뭔지 설명해주는거
             self.ax.set_xlabel("날짜", color='gray')
             self.ax2.set_xlabel("월", color='gray')
+            self.ax3.set_xlabel("월", color='gray')
             self.ax.set_ylabel("누적확진자", color='gray')
             self.ax2.set_ylabel("승객수", color='gray')
+            self.ax3.set_ylabel("매출액", color='gray')
             current_values = self.fig_2.gca().get_yticks()
             self.fig_2.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values])
             self.ax2.legend()
+            self.ax3.legend()
             # 그래프의 제목
             self.ax.set_title(f'{select_country} {year_month}월 누적확진자')
             self.ax2.set_title(f'{select_country} {year}년 항공 승객수')
+            self.ax3.set_title(f'{year}년 공항 면세 총 매출액')
             # 그래프 그리기
             self.canvas.draw()
             self.canvas_2.draw()
