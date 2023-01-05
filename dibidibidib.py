@@ -140,14 +140,16 @@ class Covid_project(QWidget,form_class):
                     list_x.append(row[0].split('-')[1])  # x리스트에 날짜 추가
                 else:
                     covid_y.append(int(row[4]))
-
+            print(list_y)
             # x리스트에는 날짜를 넣고 y리스트에는 누적확진자를 넣어줌
             for i in self.a:
                 x.append(i[0])
                 y.append(int(i[5]))
             print('aaaaaaaaaaaaaaaaaaaaaaaaaa')
-            print(list_x)
+            print(list_y)
             print('kkkkkkkkkkkkkkkkkkkkkkk')
+            print(covid_y)
+
             # 그래프 생성
             self.fig = plt.Figure()
             self.fig_2 = plt.Figure()
@@ -178,7 +180,7 @@ class Covid_project(QWidget,form_class):
             self.ax2.tick_params(axis='y', colors='black', rotation=45, labelsize=8)
 
             # 이제 그래프를 그릴 껀데 x리스트에 있는 걸 x축에 넣고, y리스트를 y축에 넣고 라벨에는 선택한 년월이 들어감
-            self.ax.plot(x, y, label=f'{year_month}')
+            self.ax.plot(x, y, label=f'누적확진자')
             self.ax2.plot(list_x, list_y, 'hotpink', label='2018')
             self.ax2.plot(covid_y, 'b', label=f"{year}")
 
@@ -187,10 +189,10 @@ class Covid_project(QWidget,form_class):
             # x랑 y축이 뭔지 설명해주는거
             self.ax.set_xlabel("날짜", color='gray')
             self.ax2.set_xlabel("월", color='gray')
-            self.ax.set_ylabel("누적확진자", color='gray')
             self.ax2.set_ylabel("승객수", color='gray')
             current_values = self.fig_2.gca().get_yticks()
             self.fig_2.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values])
+            self.ax.legend()
             self.ax2.legend()
             # 그래프의 제목
             self.ax.set_title(f'{select_country} {year_month}월 누적확진자')
