@@ -143,7 +143,7 @@ class Covid_project(QWidget,form_class):
             duty_y = []
             duty_y2 = []
             print(self.b)
-            print('gggggggggggggggg')
+            print('ggggggggggggggggggggggg')
             for row in self.b:  # db정보 다 읽고
                 year = row[0].split('-')[0]  # data 리스트의 연도 -로 구분하고 0번째 값
                 if year == '2018':  # year가 2018일때
