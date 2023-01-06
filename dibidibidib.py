@@ -67,15 +67,15 @@ class Covid_project(QWidget,form_class):
                 QMessageBox.information(self, '추가', '날짜와 국가는 필수항목입니다.')
                 return
             # DB 추가-------------------------------------------------------------------
-            self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                    charset='utf8')
-            self.cursor = self.conn.cursor()
-            self.cursor.execute(
+            cursor = conn.cursor()
+            cursor.execute(
                 f"INSERT INTO covid_012(날짜,국가,신규확진자,누적확진자,신규사망자,누적사망자) VALUES('{date}','{country}',{int(new_cases)},{int(cumulative_cases)},{int(new_deaths)},{int(cumulative_deaths)})")
             # DB 저장
-            self.conn.commit()
+            conn.commit()
             # DB 닫기
-            self.conn.close()
+            conn.close()
             QMessageBox.information(self, '추가',  f"날짜:{date}\n국가:{country}\n신규확진자:{int(new_cases)}\n누적확진자:{int(cumulative_cases)}\n"
                                                  f"신규사망자:{int(new_deaths)}\n누적사망자:{int(cumulative_deaths)}\n추가되었습니다")
             self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
@@ -83,34 +83,32 @@ class Covid_project(QWidget,form_class):
 
     def draw_graph(self):  # 그래프 그리기
         try:
-            # --------------------------------------------------------------------
             # 그래프에 넣을 값 가져오기 row에 사용자가 선택한 테이블위젯의 행이 들어가 있음 ex)5번째 행을 선택했다면 5
             row = self.covid_table.currentRow()
             # select_country에 검색결과[선택행의 인덱스][국가 인덱스]를 담아줌 ex) 대한민국
             select_country = self.result[row][2]
             # select_date에 검색결과[선택행의 인덱스][날짜 인덱스]를 '-'를 기준으로 쪼개서 넣어줌 ex) ['2020','01','05']
             select_date = self.result[row][0].split('-')
+            # year 에 년도를 넣어줌 ex)'2020'
             year = select_date[0]
             # year_month에 필요한 값 년-월 형식으로 넣어줌 ex)'2020-01'
             year_month = select_date[0] + '-' + select_date[1]
-            # print(year_month)
-            # --------------------------------------------------------------------
             # sql 데이터 가져오기
-            self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000',
+            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000',
                                         db='sql_dibidibidib',
                                         charset='utf8')
 
-            self.cursor = self.conn.cursor()
+            cursor = conn.cursor()
             # year_month와 같은 값들의 데이터를 불러옴
-            self.cursor.execute(f"SELECT * FROM covid_012 where 날짜 like '%{year_month}%'"
+            cursor.execute(f"SELECT * FROM covid_012 where 날짜 like '%{year_month}%'"
                                 f"and 국가 = '{select_country}';")
-            self.a = self.cursor.fetchall()
-            self.cursor.execute(f"SELECT * FROM covid_airport5 where 날짜 like'{year}%'"
+            a = cursor.fetchall()
+            cursor.execute(f"SELECT * FROM covid_airport5 where 날짜 like'{year}%'"
                                 f"and 국가 = '{select_country}'"
                                 f"or 날짜 like '2018%' and 국가 = '{select_country}';")
-            self.b = self.cursor.fetchall()
-            self.cursor.execute(f"SELECT * FROM dutyfree where 구분 like '합계'")
-            self.c = self.cursor.fetchone()
+            b = cursor.fetchall()
+            cursor.execute(f"SELECT * FROM dutyfree where 구분 like '합계'")
+            c = cursor.fetchone()
             header = ['구분', '2019년 1월', '2019년 2월', '2019년 3월', '2019년 4월', '2019년 5월', '2019년 6월',
                       '2019년 7월', '2019년 8월', '2019년 9월', '2019년 10월', '2019년 11월', '2019년 12월',
                       '2020년 1월', '2020년 2월', '2020년 3월', '2020년 4월', '2020년 5월', '2020년 6월',
@@ -118,14 +116,8 @@ class Covid_project(QWidget,form_class):
                       '2021년 1월', '2021년 2월', '2021년 3월', '2021년 4월', '2021년 5월', '2021년 6월',
                       '2021년 7월', '2021년 8월', '2021년 9월', '2021년 10월', '2021년 11월', '2021년 12월',
                       '2022년 1월', '2022년 2월', '2022년 3월', '2022년 4월', '2022년 5월', '2022년 6월', '2022년 7월']
-            print(self.c)
-            print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
-            # 불러온 값을 self.a에 넣어줌
-            # 불러온 값 확인용 출력
-            # for i in range(len(self.a)):
-            #     print(self.a[i])
             # 데이터 닫기
-            self.conn.close()
+            conn.close()
             # --------------------------------------------------------------------
             # 폰트 설정
             font_path = "C:\\Windows\\Fonts\\gulim.ttc"
@@ -134,17 +126,15 @@ class Covid_project(QWidget,form_class):
             # 폰트 설정
             rc('font', family=font)
             # x,y 리스트 생성
-            x = list()
-            y = list()
-            list_y = []  # x축 빈리스트
+            x = []
+            y = []
+            list_y = []
             list_x = []
             covid_y = []
             duty_x = []
             duty_y = []
             duty_y2 = []
-            print(self.b)
-            print('ggggggggggggggggggggggg')
-            for row in self.b:  # db정보 다 읽고
+            for row in b:  # db정보 다 읽고
                 year = row[0].split('-')[0]  # data 리스트의 연도 -로 구분하고 0번째 값
                 if year == '2018':  # year가 2018일때
                     list_y.append(int(row[4]))  # y리스트에 여객수를 추가
@@ -155,39 +145,28 @@ class Covid_project(QWidget,form_class):
             for i in header:
                 if '2019' in i:
                     duty_x.append(i.replace('2019년 ', ''))
-            print(duty_x)
-            print('sssssssssssssssssssssss')
-            for i in self.c[:13]:
+            for i in c[:13]:
                 if i != '합계':
                     duty_y.append(i)
-            print(duty_y)
-            print('nnnnnnnnnnnnnnnnnnnn')
             if year == '2019':
                 pass
             elif year == '2020':
-                for i in self.c[13:25]:
+                for i in c[13:25]:
                     if i != '합계':
                         duty_y2.append(i)
-                print(duty_y2)
-                print('qqqqqqqqqqqqqqqq')
             elif year == '2021':
-                for i in self.c[25:36]:
+                for i in c[25:36]:
                     if i != '합계':
                         duty_y2.append(i)
-                print(duty_y2)
-                print('pppppppppppppppppp')
             elif year == '2022':
-                for i in self.c[36:]:
+                for i in c[36:]:
                     if i != '합계':
                         duty_y2.append(i)
-                print(duty_y2)
-                print('rrrrrrrrrrrrrrrrrrrrrrrrrrrr')
 
             # x리스트에는 날짜를 넣고 y리스트에는 누적확진자를 넣어줌
-            for i in self.a:
+            for i in a:
                 x.append(i[0])
                 y.append(int(i[5]))
-            print('aaaaaaaaaaaaaaaaaaaaaaaaaa')
             # 그래프 생성
             self.fig = plt.Figure()
             self.fig_2 = plt.Figure()
@@ -204,18 +183,16 @@ class Covid_project(QWidget,form_class):
             self.graph_verticalLayout.addWidget(self.canvas)
             self.graph_verticalLayout_2.addWidget(self.canvas_2)
             self.graph_verticalLayout_3.addWidget(self.canvas_3)
-            # self.fig.add_subplot(x축갯수,y축갯수,몇번째 그래프) 이건 걍 그림봐야됨
             self.ax = self.fig.add_subplot(111)
             self.ax2 = self.fig_2.add_subplot(111)
             self.ax3 = self.fig_3.add_subplot(111)
-            # self.ax.tick_params(axis='x')
             # 격자 넣기 이거 같은 경우에는 y축에만 넣었음
             self.ax.grid(axis='y')
             self.ax2.grid(axis='y')
             self.ax3.grid(axis='y')
 
             # y축의 속성값 변경해주기 색상=빨간색 회전=45도
-            self.ax.tick_params(axis='y', colors='red', rotation=45, labelsize=8)
+            self.ax.tick_params(axis='y', colors='black', rotation=45, labelsize=8)
             self.ax2.tick_params(axis='y', colors='black', rotation=45, labelsize=8)
             self.ax3.tick_params(axis='y', colors='black', rotation=45, labelsize=8)
 
@@ -232,11 +209,12 @@ class Covid_project(QWidget,form_class):
             self.ax.set_xlabel("날짜", color='gray')
             self.ax2.set_xlabel("월", color='gray')
             self.ax3.set_xlabel("월", color='gray')
-            self.ax.set_ylabel("누적확진자", color='gray')
-            self.ax2.set_ylabel("승객수", color='gray')
-            self.ax3.set_ylabel("매출액", color='gray')
-            current_values = self.fig_2.gca().get_yticks()
-            self.fig_2.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values])
+            current_values_1 = self.fig.gca().get_yticks()
+            current_values_2 = self.fig_2.gca().get_yticks()
+            current_values_3 = self.fig_3.gca().get_yticks()
+            self.fig.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values_1])
+            self.fig_2.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values_2])
+            self.fig_3.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values_3])
             self.ax2.legend()
             self.ax3.legend()
             # 그래프의 제목
@@ -252,13 +230,13 @@ class Covid_project(QWidget,form_class):
 
     def search(self):
         self.search_word = self.line_serach.text()
-        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+        conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                charset='utf8')
-        self.cursor = self.conn.cursor()
-        self.cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{self.search_word}%'"
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{self.search_word}%'"
                             f"and 삭제여부 = '0' order by 국가 and 날짜")
 
-        self.result = self.cursor.fetchall()
+        self.result = cursor.fetchall()
         # 검색결과 없을때
         if self.result==():
             QMessageBox.information(self, '검색', f'{self.search_word}에 대한 검색결과가 없습니다.')
@@ -276,7 +254,7 @@ class Covid_project(QWidget,form_class):
             self.covid_table.setItem(Row, 4, QTableWidgetItem(str(k[6])))    # 신규 사망자
             self.covid_table.setItem(Row, 5, QTableWidgetItem(str(k[7])))    # 누적 사망자
             Row += 1
-        self.conn.close()
+        conn.close()
     def check_change(self): # 수정 재확인
         if self.covid_table.currentRow()== -1:
             QMessageBox.information(self, '수정', '선택된 값이 없습니다.')
@@ -304,13 +282,13 @@ class Covid_project(QWidget,form_class):
         try:
             self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
 
-            self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                    charset='utf8')
-            self.cursor = self.conn.cursor()
-            self.cursor.execute(f"UPDATE covid_012 SET 신규확진자='{self.new_cases}', 누적확진자='{self.cumulative_cases}', 신규사망자='{self.new_deaths}', 누적사망자='{self.cumulative_deaths}'"
+            cursor = conn.cursor()
+            cursor.execute(f"UPDATE covid_012 SET 신규확진자='{self.new_cases}', 누적확진자='{self.cumulative_cases}', 신규사망자='{self.new_deaths}', 누적사망자='{self.cumulative_deaths}'"
                                 f"where 날짜='{self.data[0]}' and 국가='{self.data[2]}'")
-            self.conn.commit()
-            self.conn.close()
+            conn.commit()
+            conn.close()
             QMessageBox.information(self, '수정', '수정되었습니다.')
         except: pass
 
@@ -323,15 +301,15 @@ class Covid_project(QWidget,form_class):
             self.delete_data()
     def delete_data(self):
         try:
-            self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
-            self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+            data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
+            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                         charset='utf8')
-            self.cursor = self.conn.cursor()
-            self.cursor.execute(
+            cursor = conn.cursor()
+            cursor.execute(
                 f"UPDATE covid_012 SET 삭제여부= CONCAT ('1')"
                 f"where 날짜='{self.data[0]}' and 국가='{self.data[2]}'")
-            self.conn.commit()
-            self.conn.close()
+            conn.commit()
+            conn.close()
             QMessageBox.information(self, '삭제','삭제되었습니다.')
         except: return
 
