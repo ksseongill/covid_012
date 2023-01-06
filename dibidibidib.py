@@ -322,8 +322,8 @@ if __name__ == '__main__':
     covid_project = Covid_project()
     widget.addWidget(covid_project)
 
-    widget.setFixedWidth(1600)
-    widget.setFixedHeight(1200)
+    widget.setFixedWidth(1500)
+    widget.setFixedHeight(850)
     widget.show()
     app.exec_()
 
