@@ -26,12 +26,12 @@ class Covid_project(QWidget,form_class):
         self.btn_graph.clicked.connect(self.draw_graph)
         self.btn_del.clicked.connect(self.check_del)
         #-------------------------------------------------------------------
-        self.covid_table.setColumnWidth(0, 250)  # 행의 사이즈 조절.
-        self.covid_table.setColumnWidth(1, 250)
-        self.covid_table.setColumnWidth(2, 225)
-        self.covid_table.setColumnWidth(3, 225)
-        self.covid_table.setColumnWidth(4, 235)
-        self.covid_table.setColumnWidth(5, 240)
+        self.covid_table.setColumnWidth(0, 233)  # 행의 사이즈 조절.
+        self.covid_table.setColumnWidth(1, 233)
+        self.covid_table.setColumnWidth(2, 233)
+        self.covid_table.setColumnWidth(3, 234)
+        self.covid_table.setColumnWidth(4, 233)
+        self.covid_table.setColumnWidth(5, 210)
         #-------------------------------------------------------------------
 
     def move_add_data(self):     # 추가를 눌렀을 때 추가페이지로 이동
@@ -67,7 +67,7 @@ class Covid_project(QWidget,form_class):
                 QMessageBox.information(self, '추가', '날짜와 국가는 필수항목입니다.')
                 return
             # DB 추가-------------------------------------------------------------------
-            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+            conn = pymysql.connect(host='10.10.21.101', port=3306, user='test1', password='0000', db='sql_dibidibidib',
                                    charset='utf8')
             cursor = conn.cursor()
             cursor.execute(
@@ -94,9 +94,8 @@ class Covid_project(QWidget,form_class):
             # year_month에 필요한 값 년-월 형식으로 넣어줌 ex)'2020-01'
             year_month = select_date[0] + '-' + select_date[1]
             # sql 데이터 가져오기
-            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000',
-                                        db='sql_dibidibidib',
-                                        charset='utf8')
+            conn = pymysql.connect(host='10.10.21.101', port=3306, user='test1', password='0000', db='sql_dibidibidib',
+                                   charset='utf8')
 
             cursor = conn.cursor()
             # year_month와 같은 값들의 데이터를 불러옴
@@ -230,7 +229,7 @@ class Covid_project(QWidget,form_class):
 
     def search(self):
         self.search_word = self.line_serach.text()
-        conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+        conn = pymysql.connect(host='10.10.21.101', port=3306, user='test1', password='0000', db='sql_dibidibidib',
                                charset='utf8')
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{self.search_word}%'"
@@ -282,7 +281,7 @@ class Covid_project(QWidget,form_class):
         try:
             self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
 
-            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
+            conn = pymysql.connect(host='10.10.21.101', port=3306, user='test1', password='0000', db='sql_dibidibidib',
                                    charset='utf8')
             cursor = conn.cursor()
             cursor.execute(f"UPDATE covid_012 SET 신규확진자='{self.new_cases}', 누적확진자='{self.cumulative_cases}', 신규사망자='{self.new_deaths}', 누적사망자='{self.cumulative_deaths}'"
@@ -301,9 +300,9 @@ class Covid_project(QWidget,form_class):
             self.delete_data()
     def delete_data(self):
         try:
-            self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
-            conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
-                                        charset='utf8')
+            self.data = self.result[self.covid_table.currentRow()]              # 테이블 위젯의 result 값을 data에 저장
+            conn = pymysql.connect(host='10.10.21.101', port=3306, user='test1', password='0000', db='sql_dibidibidib',
+                                   charset='utf8')
             cursor = conn.cursor()
             cursor.execute(
                 f"UPDATE covid_012 SET 삭제여부= CONCAT ('1')"

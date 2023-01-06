@@ -127,21 +127,6 @@
       <string>삭제</string>
      </property>
     </widget>
-    <widget class="QWidget" name="verticalLayoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>460</y>
-       <width>481</width>
-       <height>381</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="graph_verticalLayout">
-      <property name="leftMargin">
-       <number>15</number>
-      </property>
-     </layout>
-    </widget>
     <widget class="QPushButton" name="btn_change">
      <property name="enabled">
       <bool>true</bool>
@@ -177,7 +162,7 @@
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>560</x>
+       <x>514</x>
        <y>460</y>
        <width>481</width>
        <height>381</height>
@@ -192,13 +177,32 @@
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>1069</x>
+       <x>1004</x>
        <y>460</y>
-       <width>411</width>
+       <width>481</width>
        <height>381</height>
       </rect>
      </property>
-     <layout class="QVBoxLayout" name="graph_verticalLayout_3"/>
+     <layout class="QVBoxLayout" name="graph_verticalLayout_3">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>24</x>
+       <y>460</y>
+       <width>481</width>
+       <height>381</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="graph_verticalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
