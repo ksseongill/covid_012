@@ -103,7 +103,7 @@ class Covid_project(QWidget,form_class):
             cursor.execute(f"SELECT * FROM covid_012 where 날짜 like '%{year_month}%'"
                                 f"and 국가 = '{select_country}';")
             a = cursor.fetchall()
-            cursor.execute(f"SELECT * FROM covid_airport5 where 날짜 like'{year}%'"
+            cursor.execute(f"SELECT * FROM covid_airport where 날짜 like'{year}%'"
                                 f"and 국가 = '{select_country}'"
                                 f"or 날짜 like '2018%' and 국가 = '{select_country}';")
             b = cursor.fetchall()
