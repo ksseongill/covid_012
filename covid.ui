@@ -29,14 +29,20 @@
     <widget class="QLineEdit" name="line_serach">
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>320</x>
        <y>40</y>
-       <width>1331</width>
+       <width>1061</width>
        <height>41</height>
       </rect>
      </property>
      <property name="text">
       <string notr="true"/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="placeholderText">
+      <string>나라를 입력하세요.</string>
      </property>
     </widget>
     <widget class="QTableWidget" name="covid_table">
@@ -203,6 +209,25 @@
        <number>0</number>
       </property>
      </layout>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>39</y>
+       <width>211</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>24</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>AFTER 코로나</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="page_2">
