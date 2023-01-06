@@ -21,11 +21,11 @@ class Covid_project(QWidget,form_class):
         self.cumulative_deaths.returnPressed.connect(self.check_add)
         self.btn_add_cancle.clicked.connect(self.move_main)
         self.btn_change.clicked.connect(self.check_change)
-        #-------------------------------------------------------------------
         self.line_serach.returnPressed.connect(self.search)
         self.btn_search.clicked.connect(self.search)
         self.btn_graph.clicked.connect(self.draw_graph)
         self.btn_del.clicked.connect(self.check_del)
+        #-------------------------------------------------------------------
         self.covid_table.setColumnWidth(0, 250)  # 행의 사이즈 조절.
         self.covid_table.setColumnWidth(1, 250)
         self.covid_table.setColumnWidth(2, 225)
@@ -301,7 +301,7 @@ class Covid_project(QWidget,form_class):
             self.delete_data()
     def delete_data(self):
         try:
-            data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
+            self.data = self.result[self.covid_table.currentRow()]  # 테이블 위젯의 result 값을 data에 저장
             conn = pymysql.connect(host='localhost', port=3306, user='root', password='00000000', db='sql_dibidibidib',
                                         charset='utf8')
             cursor = conn.cursor()
