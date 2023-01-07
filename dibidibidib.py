@@ -34,13 +34,14 @@ class Covid_project(QWidget,form_class):
         self.covid_table.setColumnWidth(5, 210)
         #-------------------------------------------------------------------
 
+    # 추가 페이지로 이동
     def move_add_data(self):     # 추가를 눌렀을 때 추가페이지로 이동
         self.stackedWidget.setCurrentIndex(1)
-
+    # 메인페이지로 이동
     def move_main(self):    # 취소를 눌렀을 때 메인페이지로 이동
         self.stackedWidget.setCurrentIndex(0)
         self.le_clear()
-
+    # 추가 lineedit 클리어
     def le_clear(self):
         self.date.clear()
         self.country.clear()
@@ -48,15 +49,17 @@ class Covid_project(QWidget,form_class):
         self.new_deaths.clear()
         self.cumulative_cases.clear()
         self.cumulative_deaths.clear()
-    def check_add(self):    # 추가 재확인
+    # 추가 재확인
+    def check_add(self):
         ck_add = QMessageBox.question(self, '추가', '추가 하시겠습니까?', QMessageBox.Yes | QMessageBox.No)
         if ck_add == QMessageBox.Yes:
             self.add_data_complete()
         else: # 라인에디터 클리어
             self.le_clear()
+    # 추가항목 데이터 업로드
     def add_data_complete(self):    # 완료버튼 클릭시, 마지막 에디터에서 엔터를 쳤을 경우
         try:
-            # 라인에디터 텍스트 받기-------------------------------------------------------
+            # 라인에디터 텍스트 받기
             date = self.date.text()
             country = self.country.text()
             new_cases = self.new_cases.text()
@@ -66,22 +69,24 @@ class Covid_project(QWidget,form_class):
             if date=='' or country=='':
                 QMessageBox.information(self, '추가', '날짜와 국가는 필수항목입니다.')
                 return
-            # DB 추가-------------------------------------------------------------------
+            # DB 추가
             conn = pymysql.connect(host='10.10.21.101', port=3306, user='test1', password='0000', db='sql_dibidibidib',
                                    charset='utf8')
             cursor = conn.cursor()
+            # 데이터 추가하기
             cursor.execute(
                 f"INSERT INTO covid_012(날짜,국가,신규확진자,누적확진자,신규사망자,누적사망자) VALUES('{date}','{country}',{int(new_cases)},{int(cumulative_cases)},{int(new_deaths)},{int(cumulative_deaths)})")
             # DB 저장
             conn.commit()
             # DB 닫기
             conn.close()
+            # 추가한 값과 추가결과 보여주는 메시지박스
             QMessageBox.information(self, '추가',  f"날짜:{date}\n국가:{country}\n신규확진자:{int(new_cases)}\n누적확진자:{int(cumulative_cases)}\n"
                                                  f"신규사망자:{int(new_deaths)}\n누적사망자:{int(cumulative_deaths)}\n추가되었습니다")
             self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
         except: self.stackedWidget.setCurrentIndex(0)   # 전 스택으로 이동
-
-    def draw_graph(self):  # 그래프 그리기
+    # 그래프 그리기
+    def draw_graph(self):
         try:
             # 그래프에 넣을 값 가져오기 row에 사용자가 선택한 테이블위젯의 행이 들어가 있음 ex)5번째 행을 선택했다면 5
             row = self.covid_table.currentRow()
@@ -98,7 +103,7 @@ class Covid_project(QWidget,form_class):
                                    charset='utf8')
 
             cursor = conn.cursor()
-            # year_month와 같은 값들의 데이터를 불러옴
+            # 사용자가 선택한 값과 같은 데이터를 불러옴
             cursor.execute(f"SELECT * FROM covid_012 where 날짜 like '%{year_month}%'"
                                 f"and 국가 = '{select_country}';")
             a = cursor.fetchall()
@@ -108,6 +113,7 @@ class Covid_project(QWidget,form_class):
             b = cursor.fetchall()
             cursor.execute(f"SELECT * FROM dutyfree where 구분 like '합계'")
             c = cursor.fetchone()
+            # 헤더 리스트 생성 (dutyfree 테이블만 열과 행이 바뀌어서 헤더값을 코드에서 선언해줌)
             header = ['구분', '2019년 01', '2019년 02', '2019년 03', '2019년 04', '2019년 05', '2019년 06',
                       '2019년 07', '2019년 08', '2019년 09', '2019년 10', '2019년 11', '2019년 12',
                       '2020년 01', '2020년 02', '2020년 03', '2020년 04', '2020년 05', '2020년 06',
@@ -133,7 +139,8 @@ class Covid_project(QWidget,form_class):
             duty_x = []
             duty_y = []
             duty_y2 = []
-            for row in b:  # db정보 다 읽고
+            # 데이터 날짜 값에서 년, 월, 일 쪼개기
+            for row in b:
                 year = row[0].split('-')[0]  # data 리스트의 연도 -로 구분하고 0번째 값
                 if year == '2018':  # year가 2018일때
                     list_y.append(int(row[4]))  # y리스트에 여객수를 추가
@@ -208,15 +215,17 @@ class Covid_project(QWidget,form_class):
             self.ax.set_xlabel("날짜", color='gray')
             self.ax2.set_xlabel("월", color='gray')
             self.ax3.set_xlabel("월", color='gray')
+            # 천단위 콤마 삽입 코드
             current_values_1 = self.fig.gca().get_yticks()
             current_values_2 = self.fig_2.gca().get_yticks()
             current_values_3 = self.fig_3.gca().get_yticks()
             self.fig.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values_1])
             self.fig_2.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values_2])
             self.fig_3.gca().set_yticklabels(['{:,.0f}'.format(x) for x in current_values_3])
+            # 범례 띄우기
             self.ax2.legend()
             self.ax3.legend()
-            # 그래프의 제목
+            # 그래프 타이틀 설정
             self.ax.set_title(f'{select_country} {year_month}월 누적확진자')
             self.ax2.set_title(f'{select_country} {year}년 항공 승객수')
             self.ax3.set_title(f'{year}년 공항 면세 총 매출액')
@@ -226,16 +235,18 @@ class Covid_project(QWidget,form_class):
             self.canvas_3.draw()
         except:
             pass
-
+    # 검색 메서드 및 검색결과 메시지 박스
     def search(self):
+        # 검색어 받기
         self.search_word = self.line_serach.text()
         conn = pymysql.connect(host='10.10.21.101', port=3306, user='test1', password='0000', db='sql_dibidibidib',
                                charset='utf8')
         cursor = conn.cursor()
+        # 검색어와 비슷한 데이터 가져오기
         cursor.execute(f"SELECT * FROM covid_012 where 국가 like '%{self.search_word}%'"
                             f"and 삭제여부 = '0' order by 국가 and 날짜")
-
         self.result = cursor.fetchall()
+
         # 검색결과 없을때
         if self.result==():
             QMessageBox.information(self, '검색', f'{self.search_word}에 대한 검색결과가 없습니다.')
@@ -244,7 +255,7 @@ class Covid_project(QWidget,form_class):
             print(self.result[i])
         self.covid_table.setRowCount(len(self.result))
         Row = 0
-
+        # 검색결과 테이블위젯에 넣기
         for k in self.result:
             self.covid_table.setItem(Row, 0, QTableWidgetItem(k[0]))         # 날짜
             self.covid_table.setItem(Row, 1, QTableWidgetItem(k[2]))         # 국가
@@ -254,7 +265,9 @@ class Covid_project(QWidget,form_class):
             self.covid_table.setItem(Row, 5, QTableWidgetItem(str(k[7])))    # 누적 사망자
             Row += 1
         conn.close()
-    def check_change(self): # 수정 재확인
+    # 수정 재확인 및 수정불가 체크, 메시지박스
+    def check_change(self):
+        # 선택된 셀이 없을 경우
         if self.covid_table.currentRow()== -1:
             QMessageBox.information(self, '수정', '선택된 값이 없습니다.')
             return
@@ -270,6 +283,7 @@ class Covid_project(QWidget,form_class):
                 QMessageBox.information(self, '수정', '날짜와 국가는 수정 할 수 없습니다.')
                 self.search()
                 return
+        # 수정된 값이 없을 경우
         elif self.data[4:-1] == (int(self.new_cases),int(self.cumulative_cases),int(self.new_deaths),int(self.cumulative_deaths)):
             QMessageBox.information(self, '수정', '수정된 값이 없습니다.')
         else:
@@ -277,6 +291,7 @@ class Covid_project(QWidget,form_class):
             if ck_chage == QMessageBox.Yes:
                 self.change_data()
             else: return
+    # 수정값 데이터 업로드 및 수정완료 메시지 박스
     def change_data(self):
         try:
             self.covid_table.setEditTriggers(QAbstractItemView.AllEditTriggers)    # 테이블 위젯 수정 가능하게 변경
@@ -291,13 +306,15 @@ class Covid_project(QWidget,form_class):
             QMessageBox.information(self, '수정', '수정되었습니다.')
         except: pass
 
-    def check_del(self): # 삭제 재확인
+    # 삭제 재확인 및 삭제불가 메시지박스
+    def check_del(self):
         if self.covid_table.currentRow()== -1:
             QMessageBox.information(self, '삭제', '선택된 값이 없습니다.')
             return
         ck_del = QMessageBox.question(self, '삭제', '삭제 하시겠습니까?', QMessageBox.Yes | QMessageBox.No)
         if ck_del == QMessageBox.Yes:
             self.delete_data()
+    # 삭제한 데이터 업로드 및 삭제 메시지 박스
     def delete_data(self):
         try:
             self.data = self.result[self.covid_table.currentRow()]              # 테이블 위젯의 result 값을 data에 저장
